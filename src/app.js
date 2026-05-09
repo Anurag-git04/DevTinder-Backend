@@ -1,12 +1,20 @@
 const express = require("express");
-
-const app = express();
-const dotenv = require("dotenv");
-dotenv.config();
-
 const connectDB = require("./config/database");
+const app = express();
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const http = require("http");
+
+require("dotenv").config();
+app.use(express.json());
+app.use(cookieParser());
+
+const authRouter = require("./routes/auth");
+
+app.use("/", authRouter);
 
 connectDB();
+
 
 app.listen(3000, () => {
   console.log("Server is listening on port 3000...");
