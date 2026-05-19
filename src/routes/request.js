@@ -3,14 +3,14 @@ const requestRouter = express.Router();
 const User = require("../models/user");
 const ConnectionsRequest = require("../models/connectionsRequest");
 
-const { userAuth } = require("../middleware/authMiddleware");
+const { userAuth } = require("../middlewares/auth");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
   userAuth,
   async (req, res) => {
     try {
-      const fromUserId = res.user._id;
+      const fromUserId = req.user._id;
       const toUserId = req.params.toUserId;
       const status = req.params.status;
 
