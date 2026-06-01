@@ -14,6 +14,8 @@ requestRouter.post(
       const toUserId = req.params.toUserId;
       const status = req.params.status;
 
+      console.log("user :", fromUserId);
+
       const allowedStatuses = ["ignored", "interested"];
       if (!allowedStatuses.includes(status)) {
         return res
@@ -35,11 +37,13 @@ requestRouter.post(
       const data = await connectionRequest.save();
       res.json({
         message:
-          req.user.firstname + "is" + status + " with " + toUser.firstname,
+          req.user.firstName + " is " + status + " with " + toUser.firstName,
         data,
       });
     } catch (error) {
-      res.status(400).send("Error: " + error.message);
+      return res.status(400).send("Error: " + error.message);
     }
   },
 );
+
+module.exports = requestRouter;
