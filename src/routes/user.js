@@ -5,7 +5,6 @@ const ConnectionsRequest = require("../models/connectionsRequest");
 const { userAuth } = require("../middlewares/auth");
 
 const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
-const hideUserFromFeed = new Set();
 
 userRouter.get("/users/requests/received", userAuth, async (req, res) => {
   try {
@@ -69,12 +68,15 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       ],
     }).select("fromUserId toUserId status");
 
-    const users = await User.find({
-      $and: [
-        { _id: { $nin: Array.from(hideUserFromFeed) } },
-        { _id: { $ne: loggedInUserId._id } },
-      ],
-    })
+    // build a local exclusion set from connections (other party + self)
+    const hideUsersFromFeed = new Set();
+    connectionsRequests.forEach((r) => {
+      if (r.fromUserId) hideUsersFromFeed.add(r.fromUserId.toString());
+      if (r.toUserId) hideUsersFromFeed.add(r.toUserId.toString());
+    });
+    hideUsersFromFeed.add(loggedInUserId._id.toString());
+
+    const users = await User.find({ _id: { $nin: Array.from(hideUsersFromFeed) } })
       .select(USER_SAFE_DATA)
       .skip(skip)
       .limit(limit);
